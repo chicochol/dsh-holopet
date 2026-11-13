@@ -2,7 +2,7 @@
 
 <img src="docs/icon.png" width="160" alt="HoloPet">
 
-# HoloPet
+# DSH-HoloPet
 
 **把 DeepSeek Harness 的工作状态，投到一台 320×240 的桌搭屏上。**
 
@@ -49,6 +49,8 @@ DSH（DeepSeek Harness）在电脑上跑任务时，你不会一直盯着屏幕�
 </td>
 </tr>
 </table>
+
+![A/B 两页界面](docs/img/hero.png)
 
 <table>
 <tr>
@@ -130,9 +132,13 @@ curl http://127.0.0.1:17890/state
 
 ### 2. 把应用装到设备
 
-两种方式：
+三种方式：
 
-**方式一：用脚本（推荐）**
+**方式一：应用商店（最简单）**
+
+在设备的应用商店里搜 **HoloPet** 直接安装，装完就能在启动器里看到图标。
+
+**方式二：用脚本（推荐）**
 
 ```bash
 python tools/deploy_app.py
@@ -140,7 +146,7 @@ python tools/deploy_app.py
 
 脚本会把 `app/` 目录下所有文件通过 `/devtools/api` 上传到设备的 `/sd/apps/dsh_fish/`。
 
-**方式二：手动**
+**方式三：手动**
 
 打开设备的开发工具页 `http://<设备IP>/devtools/`，把 `app/` 目录里的文件逐个上传到 `/sd/apps/dsh_fish/`。
 
