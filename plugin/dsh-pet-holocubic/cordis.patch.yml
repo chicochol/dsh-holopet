@@ -1,0 +1,18 @@
+# dsh-holocubic 自带的 loader 补丁。
+#
+# 只有当本包被列进 profile 的 `dsh.profile.bundles` 时，宿主才会叠加这个
+# 文件。install.md 的主路径是“包依赖 + profile cordis.patch.yml 手动条目”，
+# 本包不在 bundles 里，所以这个文件不会生效，最终只有一份实例。
+#
+# 如果你改用 bundle 路线（把包加进 bundles），就不要再在 profile 的
+# cordis.patch.yml 里 insert 同一个 id，否则插件会被加载两份：第二份发现
+# 17890 已被占用，会退到 17891，于是 /state 和 /events 分散在两个端口上。
+- insert:
+    - id: dsh-holocubic
+      name: 'dsh-holocubic'
+      config:
+        # HTTP/SSE 监听端口；被占用时依次尝试 port + 1 .. port + 5。
+        port: 17890
+        portAttempts: 6
+        # SSE 心跳间隔（毫秒），设备端应大于这个值才算断线。
+        heartbeatMs: 10000

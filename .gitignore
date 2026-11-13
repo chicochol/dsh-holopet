@@ -1,0 +1,31 @@
+# 构建中间产物
+build/
+dist/
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 用户本地配置（含内网 IP 等）
+app/skin.json
+app/settings.json
+
+# 原始素材与备份（体积大且版权状态复杂，不入库）
+assets/refs/
+assets/backup/
+
+# 开发期临时文件
+*.log
+*.tmp
+err.txt
+syn.txt
+walkerr.txt
+启动皮肤工作台.bat
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

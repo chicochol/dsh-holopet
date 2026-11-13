@@ -1,0 +1,35 @@
+{
+  "name": "dsh-pet-holocubic",
+  "version": "1.0.0",
+  "description": "HoloPet — 把 DeepSeek Harness 的 agent 实时状态通过 HTTP/SSE 暴露给局域网里的 HoloCubic 桌搭屏。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./fold": "./lib/fold.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/fold.js",
+    "cordis.patch.yml"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "holocubic",
+    "holopet",
+    "sse",
+    "status",
+    "desktop-pet"
+  ],
+  "license": "GPL-3.0"
+}
