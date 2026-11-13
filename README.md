@@ -50,7 +50,24 @@ DSH（DeepSeek Harness）在电脑上跑任务时，你不会一直盯着屏幕�
 </tr>
 </table>
 
-![屏幕效果](docs/img/screen-states.png)
+<table>
+<tr>
+<td width="50%" align="center">
+
+<img src="docs/img/a-page.gif" alt="A 页 · 角色为主">
+
+**A 页** — 待命时左右走动、东张西望
+
+</td>
+<td width="50%" align="center">
+
+<img src="docs/img/b-page.gif" alt="B 页 · 场景化终端">
+
+**B 页** — 命令流、上下文、token 明细、峰谷刻度
+
+</td>
+</tr>
+</table>
 
 左右倾斜设备（或按键）切换界面。
 
@@ -208,6 +225,8 @@ return {
 ## 配置页能调什么
 
 设备上访问 `http://<设备IP>/dsh_fish/`：
+
+![设置页 · 外观配色](docs/img/settings-theme.png)
 
 - **主机连接** — IP / 端口 / 路径 / 语言 / 音量
 - **连接状态** — 实时连接指示、设备字体信息
