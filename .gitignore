@@ -24,6 +24,9 @@ syn.txt
 walkerr.txt
 启动皮肤工作台.bat
 
+# npm 打包产物（发布用临时文件，不入库）
+plugin/dsh-pet-holocubic/*.tgz
+
 # 编辑器 / 系统
 .vscode/
 .idea/

@@ -31,5 +31,15 @@
     "status",
     "desktop-pet"
   ],
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chicochol/dsh-holopet.git",
+    "directory": "plugin/dsh-pet-holocubic"
+  },
+  "homepage": "https://github.com/chicochol/dsh-holopet#readme",
+  "bugs": {
+    "url": "https://github.com/chicochol/dsh-holopet/issues"
+  },
+  "author": "chicochol"
 }
