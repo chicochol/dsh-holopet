@@ -1,14 +1,15 @@
-# 这是提交给 awesome-dsh-plugin/awesome-dsh-plugin 的条目草案。
-# 目标文件：data/plugins/chicochol__dsh-holopet.yml
+# 提交给 awesome-dsh-plugin/awesome-dsh-plugin 的条目草案。
+# 目标文件：data/plugins/chicochol__dsh-holopet--plugin-dsh-pet-holocubic.yml
 # 提交前提：
-#   1. dsh-pet-holocubic 已发布到 npm（pnpm publish 成功）
-#   2. 仓库创建已满 24 小时
+#   1. dsh-pet-holocubic 已发布到 npm（1.0.0 已在 registry）
+#   2. 仓库创建已满 24 小时（created 2026-11-13T03:23:05Z → 北京时间 2026-11-14 11:23 后可提交）
 #   3. 仓库已有 dsh-plugin topic
 #
 # 提交方式：fork awesome-dsh-plugin/awesome-dsh-plugin，加这个文件，按 pr-body.md 模板提 PR。
+# 注意：yml 里不要写 npm: 字段（会被 CI 拒绝）；url 必须指到子目录以匹配 monorepo 子包。
 
-url: https://github.com/chicochol/dsh-holopet
-name: chicochol/dsh-holopet/plugin/dsh-pet-holocubic
+url: https://github.com/chicochol/dsh-holopet/tree/main/plugin/dsh-pet-holocubic
+name: chicochol/dsh-holopet#dsh-pet-holocubic
 category: fun
 description:
   en: 'Desktop pet for HoloCubic: mirrors your DeepSeek Harness agent state over LAN SSE, with 114 animations, two screens and an on-device skin editor.'
