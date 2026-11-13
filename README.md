@@ -103,6 +103,12 @@ DSH（DeepSeek Harness）在电脑上跑任务时，你不会一直盯着屏幕�
 
 ### 1. 安装 DSH 插件
 
+**方式一：插件市场（推荐）**
+
+包已发布到 npm（`dsh-pet-holocubic`）。打开 DSH Desktop 的**插件市场**，搜索 `dsh-pet-holocubic` 一键安装，装完重启 DSH Desktop 即可。
+
+**方式二：手动安装（离线 / 开发调试）**
+
 把 `plugin/dsh-pet-holocubic/` 整个目录复制到你的 DSH profile 的 `node_modules/` 下：
 
 ```bash
@@ -298,7 +304,7 @@ The DSH plugin (`plugin/dsh-pet-holocubic/`) subscribes to the agent event bus a
 
 Two screens: an animation-first page (A) and a terminal-scene page (B) with command feed, context gauge, token breakdown and peak/off-peak tariff bar. Switch with tilt or keys.
 
-**Install**: copy `plugin/dsh-pet-holocubic/` into your DSH profile's `node_modules/`, add it to `dsh.profile.bundles`, restart DSH. Then deploy `app/` to `/sd/apps/dsh_fish/` on the device and point the config page at your PC's LAN IP.
+**Install**: install `dsh-pet-holocubic` from the DSH Desktop plugin marketplace, or copy `plugin/dsh-pet-holocubic/` into your DSH profile's `node_modules/` and add it to `dsh.profile.bundles`, then restart DSH. Then deploy `app/` to `/sd/apps/dsh_fish/` on the device and point the config page at your PC's LAN IP.
 
 **License**: code GPL-3.0; pc2005 assets CC BY-NC-SA 4.0 (**non-commercial**); whale-girl assets BSD-3. See [CREDITS.md](CREDITS.md).
 
