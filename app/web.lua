@@ -362,7 +362,7 @@ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest
 function galleryPaint(d){const g=$('gallery');if(!g)return;const s=(d&&d.skin)||{};const cats=s.categories||[];if(cats.length){g.innerHTML=cats.map(c=>{const fs=c.files||[];const imgs=fs.map(p=>'<img src="'+assetUrl(p)+'" title="'+p+'">').join('');return '<div class="grow"><div class="gname">'+c.id+' <span class="gcount">'+fs.length+'</span></div><div class="gimgs">'+imgs+'</div></div>'}).join('');return}const acts=s.actions||{};const keys=Object.keys(acts).sort();g.innerHTML=keys.map(k=>{const imgs=(acts[k]||[]).map(p=>'<img src="'+assetUrl(p)+'" title="'+p+'">').join('');return '<div class="grow"><div class="gname">'+evtName(k)+'</div><div class="gimgs">'+imgs+'</div></div>'}).join('')}
 function sndPaint(d){const s=((d&&d.skin)||{});const list=s.sound_list||[];const cur=s.sounds||{};document.querySelectorAll('.sndSel').forEach(el=>{const n=el.id.slice(4);el.innerHTML='<option value="off">无</option>'+list.map(v=>'<option value="'+v+'">'+v+'</option>').join('');el.value=cur[n]&&cur[n]!=='off'?cur[n]:'off';});}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.sndTry');if(!b)return;const ev=b.dataset.ev;const sel=$('snd_'+ev);const v=sel?sel.value:'off';if(!v||v==='off'){return;}fetch(API+'/skin?test_snd='+encodeURIComponent(v),{cache:'no-store'}).catch(()=>{});});
-$('behApply').onclick=async()=>{const mEl=$('behMsg');mEl.textContent=TXT.saving;mEl.className='status';try{const q=new URLSearchParams();['pace','pause','len'].forEach(function(k,i){var id=['w_pace','w_pause','w_len'][i];var el=document.getElementById(id);if(el)q.set('walk_'+k,el.value)});const used={};Object.keys(((LASTSNAP&&LASTSNAP.skin)||{}).actions||{}).forEach(function(n){used[n]=1});let r=await fetch(API+'/skin?'+q,{cache:'no-store'});let d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||TXT.skinFail);const groups=Object.keys(used);for(let k=0;k<groups.length;k++){const g=groups[k];const en=[],wk=[];document.querySelectorAll('.varEn[data-ev="'+g+'"]').forEach(i=>{if(i.checked)en.push(i.dataset.f)});document.querySelectorAll('.varWk[data-ev="'+g+'"]').forEach(i=>{if(i.checked)wk.push(i.dataset.f)});const q2=new URLSearchParams();q2.set('var_'+g,en.join(',')+'|'+wk.join(',')+'|seq');const r2=await fetch(API+'/skin?'+q2,{cache:'no-store'});const d2=await r2.json();if(!r2.ok||!d2.ok)throw Error((d2&&d2.error)||TXT.skinFail);d=d2}const q3=new URLSearchParams();document.querySelectorAll('.sndSel').forEach(el=>{const n=el.id.slice(4);q3.set('snd_'+n,el.value||'off')});Object.keys(MOVE_MAP).forEach(function(s){var e=document.getElementById('mvsp_'+s);if(e&&e.value)q3.set('mvsp_'+s,e.value)});const r3=await fetch(API+'/skin?'+q3,{cache:'no-store'});const d3=await r3.json();if(!r3.ok||!d3.ok)throw Error((d3&&d3.error)||TXT.skinFail);d=d3;behPaint(d);mEl.textContent=TXT.behSaved;mEl.className='status ok'}catch(e){mEl.textContent=TXT.skinFail+(e&&e.message||e);mEl.className='status bad'}};const THEME_DEF={bg:'#0B1512',panel:'#13241C',track:'#223A2E',fg:'#F2FBF6',dim:'#7E9C8C',accent:'#4ADE80',warn:'#FBBF24',error:'#F87171'};function bindThemeInputs(){Object.keys(THEME_DEF).forEach(k=>{const el=$('t_'+k);if(el)el.addEventListener('input',drawFigs)});const sc=$('t_scale');if(sc)sc.addEventListener('input',()=>scaleLabel(sc.value));const sv=$('s_vol');if(sv)sv.addEventListener('input',()=>volLabel_(sv.value/100))}
+async function skinPatch(params){const qs=typeof params==='string'?params:params.toString();const bytes=new TextEncoder().encode(qs);let hex='';for(let i=0;i<bytes.length;i++)hex+=bytes[i].toString(16).padStart(2,'0');const CH=400;const parts=[];for(let i=0;i<hex.length;i+=CH)parts.push(hex.slice(i,i+CH));const key='c'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);let last=null;for(let i=0;i<parts.length;i++){const r=await fetch(API+'/skin/chunk?k='+key+'&i='+i+'&n='+parts.length+'&d='+parts[i],{cache:'no-store'});const d=await r.json();if(!r.ok||!d.ok)throw Error((d&&d.error)||TXT.skinFail);last=d}return last}$('behApply').onclick=async()=>{const mEl=$('behMsg');mEl.textContent=TXT.saving;mEl.className='status';try{const q=new URLSearchParams();['pace','pause','len'].forEach(function(k,i){var id=['w_pace','w_pause','w_len'][i];var el=document.getElementById(id);if(el)q.set('walk_'+k,el.value)});const used={};Object.keys(((LASTSNAP&&LASTSNAP.skin)||{}).actions||{}).forEach(function(n){used[n]=1});let d=await skinPatch(q);const groups=Object.keys(used);for(let k=0;k<groups.length;k++){const g=groups[k];const en=[],wk=[];document.querySelectorAll('.varEn[data-ev="'+g+'"]').forEach(i=>{if(i.checked)en.push(i.dataset.f)});document.querySelectorAll('.varWk[data-ev="'+g+'"]').forEach(i=>{if(i.checked)wk.push(i.dataset.f)});const q2=new URLSearchParams();q2.set('var_'+g,en.join(',')+'|'+wk.join(',')+'|seq');d=await skinPatch(q2)}const q3=new URLSearchParams();document.querySelectorAll('.sndSel').forEach(el=>{const n=el.id.slice(4);q3.set('snd_'+n,el.value||'off')});Object.keys(MOVE_MAP).forEach(function(s){var e=document.getElementById('mvsp_'+s);if(e&&e.value)q3.set('mvsp_'+s,e.value)});d=await skinPatch(q3);behPaint(d);mEl.textContent=TXT.behSaved;mEl.className='status ok'}catch(e){mEl.textContent=TXT.skinFail+(e&&e.message||e);mEl.className='status bad'}};const THEME_DEF={bg:'#0B1512',panel:'#13241C',track:'#223A2E',fg:'#F2FBF6',dim:'#7E9C8C',accent:'#4ADE80',warn:'#FBBF24',error:'#F87171'};function bindThemeInputs(){Object.keys(THEME_DEF).forEach(k=>{const el=$('t_'+k);if(el)el.addEventListener('input',drawFigs)});const sc=$('t_scale');if(sc)sc.addEventListener('input',()=>scaleLabel(sc.value));const sv=$('s_vol');if(sv)sv.addEventListener('input',()=>volLabel_(sv.value/100))}
 function figColors(){const o={};Object.keys(THEME_DEF).forEach(k=>{const el=$('t_'+k);o[k]=(el&&el.value)||THEME_DEF[k]});return o}
 function drawFigs(){const _a=$('figA'),_b=$('figB');if(!_a||!_b)return;const c=figColors();const cvA=$('figA'),cvB=$('figB');if(!cvA||!cvB)return;
 let x=cvA.getContext('2d');x.clearRect(0,0,320,240);x.fillStyle=c.bg;x.fillRect(0,0,320,240);
@@ -551,8 +551,8 @@ function Web.new(opts)
     local EVENT_NAMES = { "Idle", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest",
                           "Error", "Stop", "SessionStart", "SubagentStart", "SubagentStop",
                           "PreCompact", "PostCompact", "Sleeping" }
-    self:register(httpd.GET, self.api_prefix .. "/skin", function(req)
-      local q = parse_query(req and req.query or "")
+    local function handle_skin_query(query_text)
+      local q = parse_query(query_text or "")
       local patch = {}
       local active = trim(q.active or "")
       local speed = trim(q.speed or "")
@@ -692,6 +692,36 @@ function Web.new(opts)
         end
       end
       return json_response("200 OK", self:snapshot(true, "skin"))
+    end
+    self:register(httpd.GET, self.api_prefix .. "/skin", function(req)
+      return handle_skin_query(req and req.query or "")
+    end)
+    -- 长参数分片：设备 httpd 的请求行只有 512 字节，var_<组> 全选动作时会超长。
+    -- 前端把整串 query 转 hex 后切片，用 k/i/n/d 逐片送上来，收齐后拼回并复用 /skin 的解析。
+    self:register(httpd.GET, self.api_prefix .. "/skin/chunk", function(req)
+      local cq = parse_query(req and req.query or "")
+      local key = trim(cq.k or "")
+      local index = tonumber(cq.i)
+      local total = tonumber(cq.n)
+      local data = tostring(cq.d or "")
+      if key == "" or not index or not total or total < 1 or index < 0 or index >= total then
+        return json_response("400 Bad Request", { ok = false, error = "bad chunk" })
+      end
+      self.chunk_buf = self.chunk_buf or {}
+      local entry = self.chunk_buf[key]
+      if not entry then entry = { parts = {}, count = 0 }; self.chunk_buf[key] = entry end
+      if not entry.parts[index + 1] then entry.count = entry.count + 1 end
+      entry.parts[index + 1] = data
+      if entry.count < total then
+        return json_response("200 OK", { ok = true, pending = true })
+      end
+      local hex = table.concat(entry.parts)
+      self.chunk_buf[key] = nil
+      local keys = 0
+      for _ in pairs(self.chunk_buf) do keys = keys + 1 end
+      if keys > 8 then self.chunk_buf = {} end
+      local decoded = hex:gsub("%x%x", function(h) return string.char(tonumber(h, 16)) end)
+      return handle_skin_query(decoded)
     end)
     self:register(httpd.GET, self.api_prefix .. "/skin/hide", function(req)
       local q = parse_query(req and req.query or "")

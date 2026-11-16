@@ -2591,17 +2591,24 @@ APP.web = HoloWeb.new({
     -- 否则管理页会把它们显示成「一个都没勾」，而实际播放时会回退成全部启用。
     local behavior = SKIN_STATE.behavior or {}
     local variants = behavior.variants or {}
+    -- 变体允许跨组混选（见 visual_candidates），所以校验范围是整个皮肤包，
+    -- 而不是当前组自己的动作列表；否则跨组挑的动作会在保存后被悄悄过滤掉。
+    local valid = {}
+    local function mark_valid(p)
+      valid[tostring(p):match("([^/]+)$") or tostring(p)] = true
+    end
+    for _, list in pairs(actions) do
+      for _, p in ipairs(list) do mark_valid(p) end
+    end
+    for _, c in ipairs((ClawdPack and ClawdPack.categories) or {}) do
+      for _, p in ipairs(c.files or {}) do mark_valid(p) end
+    end
     local filled = {}
     for g, list in pairs(actions) do
       local cfg = variants[g]
       local pkg = nil
       if type(cfg) == "table" and type(cfg.enabled) == "table" and #cfg.enabled > 0 then
-        -- 只保留当前皮肤里真实存在的文件名：切皮肤后旧配置会全部失效，
-        -- 不校验的话页面显示「一个都没勾」而实际播放又回退成全部启用。
-        local valid = {}
-        for _, p in ipairs(list) do
-          valid[tostring(p):match("([^/]+)$") or tostring(p)] = true
-        end
+        -- 只保留当前皮肤里真实存在的文件名：切皮肤后旧配置会全部失效。
         local keep_en, keep_wk = {}, {}
         for _, b in ipairs(cfg.enabled) do if valid[b] then keep_en[#keep_en + 1] = b end end
         for _, b in ipairs(type(cfg.walk) == "table" and cfg.walk or {}) do
