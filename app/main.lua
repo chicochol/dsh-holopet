@@ -85,7 +85,7 @@ if previous and previous.stop then
 end
 
 local APP = {
-  VERSION = "1.4.1",
+  VERSION = "1.5.0",
   running = true,
   timer = nil,
   controller_timer = nil,
