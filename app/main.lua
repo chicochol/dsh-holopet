@@ -443,23 +443,106 @@ local function random_session_meme_delay_ms()
   return ok and tonumber(value) or SESSION_MEME_MIN_MS
 end
 
+-- 读取文件全文：优先固件的 file.getcontents，回退 file.open 分块读。
+local function read_file_text(path)
+  local ok, value = pcall(function() return file.getcontents(path) end)
+  if ok and type(value) == "string" and #value > 0 then return value end
+  if not (file and file.open) then return nil end
+  local fd = file.open(path, "r")
+  if not fd then return nil end
+  local chunks = {}
+  while true do
+    local part = fd:read(1024)
+    if not part or part == "" then break end
+    chunks[#chunks + 1] = part
+  end
+  fd:close()
+  return table.concat(chunks)
+end
+
+-- GIF 总时长 = 各帧延时之和（单位为 10ms），用于「一个动作连播 N 遍再换」的计时。
+-- 结果按路径缓存；解析失败时给保守默认值，保证调度不会卡死。
+local gif_duration_cache = {}
+
+local function gif_duration_ms(path)
+  local cached = gif_duration_cache[path]
+  if cached then return cached end
+  local duration = 0
+  local data = read_file_text(path)
+  if data and #data > 13 and string.sub(data, 1, 3) == "GIF" then
+    local packed = string.byte(data, 11) or 0
+    local pos = 14
+    -- 全局色表大小 = 2^(N+1) 项 × 3 字节，N 是 packed 低三位
+    if packed >= 128 then pos = 14 + 3 * (2 ^ ((packed % 8) + 1)) end
+    local length = #data
+    while pos <= length do
+      local block = string.byte(data, pos)
+      if block == 0x3B then break end  -- trailer，文件结束
+      if block == 0x21 then
+        local label = string.byte(data, pos + 1)
+        pos = pos + 2
+        if label == 0xF9 then       -- 图形控制扩展：size=4, delay 为 2 字节小端
+          local size = string.byte(data, pos) or 0
+          if size >= 4 then
+            local lo = string.byte(data, pos + 2) or 0
+            local hi = string.byte(data, pos + 3) or 0
+            local frame = (lo + hi * 256) * 10
+            -- 0/极小延时的帧按常见播放器的 100ms 兜底
+            if frame < 20 then frame = 100 end
+            duration = duration + frame
+          end
+          pos = pos + 1 + size
+        end
+        while pos <= length do     -- 跳过剩余子块
+          local n = string.byte(data, pos) or 0
+          pos = pos + 1
+          if n == 0 then break end
+          pos = pos + n
+        end
+      elseif block == 0x2C then
+        local ipacked = string.byte(data, pos + 9) or 0
+        pos = pos + 10
+        if ipacked >= 128 then pos = pos + 3 * (2 ^ ((ipacked % 8) + 1)) end
+        pos = pos + 1               -- LZW minimum code size
+        while pos <= length do
+          local n = string.byte(data, pos) or 0
+          pos = pos + 1
+          if n == 0 then break end
+          pos = pos + n
+        end
+      else
+        break
+      end
+    end
+  end
+  if duration < 200 then duration = 800 end
+  gif_duration_cache[path] = duration
+  return duration
+end
+
+-- 洗牌袋：一轮内把本组所有变体随机排一遍逐个取，取完重洗。
+-- 比纯随机的重复率低，也保证勾选的每个变体都会轮到；索引按组独立保存。
 local function random_visual_index(group, count)
   count = tonumber(count) or 0
   if count <= 0 then return 1 end
   if count == 1 then
     APP.visual_indices[group] = 1
+    if group == "Idle" then APP.idle_index = 1 else APP.event_visual_index = 1 end
     return 1
   end
-
-  local previous = APP.visual_indices[group]
-  local ok_random, index = pcall(math.random, 1, count)
-  index = ok_random and tonumber(index) or 1
-  if previous and index == previous then
-    local ok_step, step = pcall(math.random, 1, count - 1)
-    step = ok_step and tonumber(step) or 1
-    index = ((index - 1 + step) % count) + 1
+  local bag = APP.visual_bag and APP.visual_bag[group]
+  if type(bag) ~= "table" or #bag == 0 or #bag ~= count then
+    bag = {}
+    for i = 1, count do bag[i] = i end
+    for i = count, 2, -1 do
+      local ok, j = pcall(math.random, 1, i)
+      j = ok and tonumber(j) or i
+      bag[i], bag[j] = bag[j], bag[i]
+    end
+    APP.visual_bag = APP.visual_bag or {}
+    APP.visual_bag[group] = bag
   end
-
+  local index = table.remove(bag, #bag) or 1
   APP.visual_indices[group] = index
   if group == "Idle" then
     APP.idle_index = index
@@ -1606,10 +1689,18 @@ local function set_visual(state)
   else
     local candidates = visual_candidates(group, false)
     if not candidates or #candidates == 0 then return end
-    local index = group == "Idle" and APP.idle_index or APP.event_visual_index
+    local index = APP.visual_indices[group]
+    if not index then index = random_visual_index(group, #candidates) end
     index = ((tonumber(index) or 1) - 1) % #candidates + 1
     local pick = candidates[index]
     source, base = pick.path, pick.base
+    -- 播放排期：同一动作连播 3~6 遍（按 GIF 单遍时长累加），到点由 visual_timer 换下一个
+    if APP.visual_source ~= source then
+      APP.visual_source = source
+      local ok_rep, rep = pcall(math.random, 3, 6)
+      APP.visual_reps = ok_rep and tonumber(rep) or 3
+      APP.visual_until = now_ms() + gif_duration_ms(source) * APP.visual_reps
+    end
   end
   -- 走动变体（当前是东张西望 idle_02）原图朝右：向右走用原图，向左走才用镜像版。
   -- 原地待命不切镜像，保持原图朝向。
@@ -1633,6 +1724,29 @@ local function set_visual(state)
   if swap_gif("status", source, wx, 8) then APP.status_visual_loaded = source end
 end
 APP.set_visual = set_visual
+
+-- 播放排期定时器：当前动作播满 3~6 遍（visual_until）后换本组下一个变体。
+-- 走动、转身期间不打断；换的时候走洗牌袋，保证勾选的变体轮流出现。
+APP.visual_timer = tmr.create()
+APP.visual_timer:alarm(1000, tmr.ALARM_AUTO, function()
+  if APP.page ~= "status" then return end
+  local until_ms = APP.visual_until
+  if not until_ms or until_ms <= 0 then return end
+  if now_ms() < until_ms then return end
+  if APP.walk and (APP.walk.moving or APP.walk.phase == "turn") then return end
+  local group = APP.current_visual_group
+  if not group then return end
+  local candidates = visual_candidates(group, false)
+  if not candidates or #candidates <= 1 then
+    APP.visual_until = 0
+    return
+  end
+  APP.visual_until = 0
+  APP.visual_source = nil
+  random_visual_index(group, #candidates)
+  APP.last_event_signature = nil
+  if APP.set_visual then APP.set_visual(APP.remote.state) end
+end)
 
 -- 待机时每 30 秒换一个 idle 变体：signature 不变时 set_visual 内部不会重选，
 -- 清掉 signature 再调一次即可让它走随机分支。
