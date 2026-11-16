@@ -103,9 +103,9 @@ DSH（DeepSeek Harness）在电脑上跑任务时，你不会一直盯着屏幕�
 
 ### 1. 安装 DSH 插件
 
-**方式一：插件市场（推荐，收录审核中）**
+**方式一：插件市场（推荐）**
 
-包已发布到 npm（`dsh-pet-holocubic`）。插件市场收录 PR 要等仓库创建满 24 小时（约 2026-11-14）后才能提交，**目前市场里还搜不到**。收录通过后，在 DSH Desktop 的**插件市场**搜索 `dsh-pet-holocubic` 即可一键安装。
+打开 DSH Desktop 的**插件市场**，搜索 `dsh-pet-holocubic` 即可一键安装，装完重启 DSH Desktop。已收录于 [awesome-dsh-plugin](https://awesome-dsh-plugin.com/p/chicochol/dsh-holopet--plugin-dsh-pet-holocubic/)（2026-11-16 上架）。
 
 **方式二：npm 直接安装（现在就能用）**
 
@@ -313,7 +313,7 @@ The DSH plugin (`plugin/dsh-pet-holocubic/`) subscribes to the agent event bus a
 
 Two screens: an animation-first page (A) and a terminal-scene page (B) with command feed, context gauge, token breakdown and peak/off-peak tariff bar. Switch with tilt or keys.
 
-**Install**: `dsh-pet-holocubic` is published on npm — run `pnpm add dsh-pet-holocubic` in your DSH profile and add it to `dsh.profile.bundles` (or copy `plugin/dsh-pet-holocubic/` into `node_modules/`), then restart DSH. A DSH Desktop marketplace listing is pending review; once approved it can be installed from the marketplace directly. Then deploy `app/` to `/sd/apps/dsh_fish/` on the device and point the config page at your PC's LAN IP.
+**Install**: install `dsh-pet-holocubic` from the DSH Desktop plugin marketplace (listed on [awesome-dsh-plugin](https://awesome-dsh-plugin.com/p/chicochol/dsh-holopet--plugin-dsh-pet-holocubic/)); alternatively run `pnpm add dsh-pet-holocubic` in your DSH profile and add it to `dsh.profile.bundles` (or copy `plugin/dsh-pet-holocubic/` into `node_modules/`), then restart DSH. Then deploy `app/` to `/sd/apps/dsh_fish/` on the device and point the config page at your PC's LAN IP.
 
 **License**: code GPL-3.0; pc2005 assets CC BY-NC-SA 4.0 (**non-commercial**); whale-girl assets BSD-3. See [CREDITS.md](CREDITS.md).
 
